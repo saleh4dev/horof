@@ -1,0 +1,15 @@
+Options -Indexes
+AddDefaultCharset UTF-8
+DirectoryIndex index.php
+
+<FilesMatch "^(\.env|\.env\.example|config\.php|config\.example\.php)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(txt|sql|md)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>

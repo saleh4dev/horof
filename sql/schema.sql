@@ -1,0 +1,46 @@
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+
+CREATE TABLE IF NOT EXISTS rooms (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(8) NOT NULL UNIQUE,
+    host_token CHAR(32) NOT NULL UNIQUE,
+    host_name VARCHAR(40) NOT NULL,
+    status ENUM('lobby', 'playing', 'results', 'finished') NOT NULL DEFAULT 'lobby',
+    total_rounds TINYINT UNSIGNED NOT NULL DEFAULT 5,
+    current_round TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    round_seconds SMALLINT UNSIGNED NOT NULL DEFAULT 60,
+    letters VARCHAR(16) DEFAULT NULL,
+    round_started_at DATETIME DEFAULT NULL,
+    results_until DATETIME DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_rooms_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS players (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id INT UNSIGNED NOT NULL,
+    token CHAR(32) NOT NULL UNIQUE,
+    name VARCHAR(24) NOT NULL,
+    kicked TINYINT(1) NOT NULL DEFAULT 0,
+    joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_players_room (room_id),
+    CONSTRAINT fk_players_room FOREIGN KEY (room_id) REFERENCES rooms (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS submissions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    room_id INT UNSIGNED NOT NULL,
+    player_id INT UNSIGNED NOT NULL,
+    round TINYINT UNSIGNED NOT NULL,
+    word VARCHAR(32) NOT NULL,
+    word_norm VARCHAR(32) NOT NULL,
+    valid TINYINT(1) NOT NULL DEFAULT 0,
+    points SMALLINT NOT NULL DEFAULT 0,
+    elapsed_ms INT UNSIGNED NOT NULL DEFAULT 0,
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_player_round_word (player_id, round, word_norm),
+    INDEX idx_sub_room_round (room_id, round),
+    CONSTRAINT fk_sub_room FOREIGN KEY (room_id) REFERENCES rooms (id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_player FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
