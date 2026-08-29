@@ -1,4 +1,5 @@
 const Horof = {
+    pollMs: 4000,
     hostToken: localStorage.getItem('horof_host') || '',
     playerToken: localStorage.getItem('horof_player') || '',
 

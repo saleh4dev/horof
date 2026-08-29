@@ -6,7 +6,7 @@ if (!Horof.playerToken) {
     location.href = 'join.php?c=' + encodeURIComponent(Horof.code());
 } else {
     tick();
-    setInterval(tick, 1000);
+    setInterval(tick, Horof.pollMs);
 }
 
 form.addEventListener('submit', async (e) => {

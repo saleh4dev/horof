@@ -24,7 +24,9 @@ function dictionary_words(): array
 
 function is_dictionary_word(string $norm): bool
 {
-    return isset(dictionary_map()[$norm]);
+    $stmt = db()->prepare('SELECT 1 FROM vocab_words WHERE word_norm = ? LIMIT 1');
+    $stmt->execute([$norm]);
+    return (bool) $stmt->fetchColumn();
 }
 
 function seed_vocab_from_file(): void
@@ -33,8 +35,8 @@ function seed_vocab_from_file(): void
     if ($seeded) {
         return;
     }
-    $count = (int) db()->query('SELECT COUNT(*) FROM vocab_words')->fetchColumn();
-    if ($count > 0) {
+    $exists = db()->query('SELECT 1 FROM vocab_words LIMIT 1')->fetchColumn();
+    if ($exists) {
         $seeded = true;
         return;
     }
@@ -145,10 +147,13 @@ function generate_letters(): string
         }
         return implode('', $chars);
     }
-    $pool = array_values(array_filter(dictionary_words(), static function (string $w): bool {
-        $n = ar_len($w);
-        return $n >= 3 && $n <= 5;
-    }));
+    seed_vocab_from_file();
+    $stmt = db()->query(
+        'SELECT word_norm FROM vocab_words
+         WHERE CHAR_LENGTH(word_norm) BETWEEN 3 AND 5
+         ORDER BY RAND() LIMIT 12'
+    );
+    $pool = $stmt->fetchAll(PDO::FETCH_COLUMN);
     if ($pool === []) {
         return 'ارنلمتبا';
     }
