@@ -17,6 +17,8 @@ DB_PORT=3306
 DB_NAME=horof
 DB_USER=...
 DB_PASSWORD=...
+ADMIN_USER=admin
+ADMIN_PASSWORD=كلمة-مرور-قوية
 ```
 
 على Render يمكن ترك `APP_URL` فارغاً؛ التطبيق يستخدم `RENDER_EXTERNAL_URL` تلقائياً.
@@ -34,7 +36,11 @@ DB_NAME=horof
 DB_USER=
 DB_PASSWORD=
 APP_URL=
+ADMIN_USER=admin
+ADMIN_PASSWORD=
 ```
+
+لوحة التحكم: `/admin/login.php` بعد ضبط `ADMIN_PASSWORD`.
 
 لا ترفع ملف `.env` الحقيقي إلى GitHub. انسخ `.env.example` فقط.
 

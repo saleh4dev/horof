@@ -15,6 +15,6 @@ $code = $code ?? '';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="stylesheet" href="<?= h(app_url('assets/css/app.css')) ?>">
 </head>
 <body class="<?= h($bodyClass) ?>" data-code="<?= h($code) ?>">

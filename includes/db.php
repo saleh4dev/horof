@@ -33,11 +33,6 @@ function ensure_schema(PDO $pdo): void
     if ($ready) {
         return;
     }
-    $exists = $pdo->query("SHOW TABLES LIKE 'rooms'")->fetch();
-    if ($exists) {
-        $ready = true;
-        return;
-    }
     $sql = file_get_contents(HOROF_ROOT . '/sql/schema.sql');
     if ($sql === false) {
         throw new RuntimeException('ملف القاعدة sql/schema.sql غير موجود');

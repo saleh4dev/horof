@@ -8,22 +8,12 @@ function dictionary_map(): array
     if (is_array($map)) {
         return $map;
     }
+    seed_vocab_from_file();
     $map = [];
-    $file = HOROF_ROOT . '/data/words.txt';
-    if (!is_readable($file)) {
-        return $map;
+    $stmt = db()->query('SELECT word_norm FROM vocab_words');
+    foreach ($stmt as $row) {
+        $map[$row['word_norm']] = true;
     }
-    $fh = fopen($file, 'r');
-    if ($fh === false) {
-        return $map;
-    }
-    while (($line = fgets($fh)) !== false) {
-        $word = ar_normalize(trim($line));
-        if ($word !== '' && ar_len($word) >= HOROF_MIN_WORD && ar_is_arabic_word($word)) {
-            $map[$word] = true;
-        }
-    }
-    fclose($fh);
     return $map;
 }
 
@@ -37,8 +27,124 @@ function is_dictionary_word(string $norm): bool
     return isset(dictionary_map()[$norm]);
 }
 
+function seed_vocab_from_file(): void
+{
+    static $seeded = false;
+    if ($seeded) {
+        return;
+    }
+    $count = (int) db()->query('SELECT COUNT(*) FROM vocab_words')->fetchColumn();
+    if ($count > 0) {
+        $seeded = true;
+        return;
+    }
+    $file = HOROF_ROOT . '/data/words.txt';
+    if (!is_readable($file)) {
+        $seeded = true;
+        return;
+    }
+    $ins = db()->prepare('INSERT IGNORE INTO vocab_words (word, word_norm) VALUES (?, ?)');
+    $fh = fopen($file, 'r');
+    if ($fh === false) {
+        $seeded = true;
+        return;
+    }
+    while (($line = fgets($fh)) !== false) {
+        $display = trim($line);
+        $norm = ar_normalize($display);
+        if ($norm !== '' && ar_len($norm) >= HOROF_MIN_WORD && ar_is_arabic_word($norm)) {
+            $ins->execute([$display, $norm]);
+        }
+    }
+    fclose($fh);
+    $seeded = true;
+}
+
+function add_vocab_word(string $raw): array
+{
+    $display = trim($raw);
+    $norm = ar_normalize($display);
+    if ($norm === '' || ar_len($norm) < HOROF_MIN_WORD) {
+        return ['ok' => false, 'error' => 'الكلمة يجب أن تكون ' . HOROF_MIN_WORD . ' أحرف على الأقل'];
+    }
+    if (!ar_is_arabic_word($norm)) {
+        return ['ok' => false, 'error' => 'استخدم حروفاً عربية فقط'];
+    }
+    try {
+        $ins = db()->prepare('INSERT INTO vocab_words (word, word_norm) VALUES (?, ?)');
+        $ins->execute([$display, $norm]);
+    } catch (PDOException $e) {
+        if ((int) $e->errorInfo[1] === 1062) {
+            return ['ok' => false, 'error' => 'الكلمة موجودة مسبقاً'];
+        }
+        throw $e;
+    }
+    return ['ok' => true, 'word' => $display];
+}
+
+function delete_vocab_word(int $id): void
+{
+    $stmt = db()->prepare('DELETE FROM vocab_words WHERE id = ?');
+    $stmt->execute([$id]);
+}
+
+function search_vocab_words(string $q, int $limit = 80): array
+{
+    $q = ar_normalize(trim($q));
+    if ($q === '') {
+        $stmt = db()->query('SELECT id, word FROM vocab_words ORDER BY id DESC LIMIT ' . (int) $limit);
+        return $stmt->fetchAll();
+    }
+    $stmt = db()->prepare(
+        'SELECT id, word FROM vocab_words WHERE word_norm LIKE ? ORDER BY id DESC LIMIT ' . (int) $limit
+    );
+    $stmt->execute(['%' . $q . '%']);
+    return $stmt->fetchAll();
+}
+
+function vocab_count(): int
+{
+    return (int) db()->query('SELECT COUNT(*) FROM vocab_words')->fetchColumn();
+}
+
+function add_letter_pool(string $raw, string $name = ''): array
+{
+    $norm = ar_normalize(trim($raw));
+    $name = clean_name($name, 40);
+    if (!ar_is_arabic_word($norm) || ar_len($norm) < 6 || ar_len($norm) > 12) {
+        return ['ok' => false, 'error' => 'أدخل مجموعة من 6 إلى 12 حرفاً عربياً'];
+    }
+    $ins = db()->prepare('INSERT INTO letter_pools (name, letters) VALUES (?, ?)');
+    $ins->execute([$name, $norm]);
+    return ['ok' => true];
+}
+
+function delete_letter_pool(int $id): void
+{
+    $stmt = db()->prepare('DELETE FROM letter_pools WHERE id = ?');
+    $stmt->execute([$id]);
+}
+
+function letter_pools(): array
+{
+    return db()->query('SELECT id, name, letters FROM letter_pools ORDER BY id DESC')->fetchAll();
+}
+
 function generate_letters(): string
 {
+    $pools = db()->query('SELECT letters FROM letter_pools')->fetchAll(PDO::FETCH_COLUMN);
+    if ($pools) {
+        $pick = (string) $pools[array_rand($pools)];
+        $chars = ar_chars($pick);
+        shuffle($chars);
+        if (count($chars) >= 8) {
+            return implode('', array_slice($chars, 0, 8));
+        }
+        while (count($chars) < 8) {
+            $chars[] = $chars[array_rand($chars)];
+        }
+        return implode('', $chars);
+    }
     $pool = array_values(array_filter(dictionary_words(), static function (string $w): bool {
         $n = ar_len($w);
         return $n >= 3 && $n <= 5;

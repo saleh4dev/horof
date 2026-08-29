@@ -13,15 +13,15 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const word = input.value.trim();
     if (!word) return;
+    input.value = '';
+    input.focus();
     const data = await Horof.api('submit.php', { word });
     if (!data.ok) {
         Horof.showMsg(msg, data.error);
         return;
     }
-    input.value = '';
     Horof.showMsg(msg, `+${data.points} نقطة`, true);
     render(data);
-    input.focus();
 });
 
 function render(data) {
@@ -48,7 +48,9 @@ function render(data) {
     form.hidden = room.status !== 'playing';
     if (you) {
         document.getElementById('my-words').innerHTML =
-            (you.words || []).map((w) => `<li>${Horof.esc(w.word)} · ${w.points}</li>`).join('');
+            (you.words || []).length
+                ? you.words.map((w) => `<li>${Horof.esc(w.word)} · ${w.points}</li>`).join('')
+                : '<li class="muted">ستظهر كلماتك هنا بعد الإرسال</li>';
         const me = data.players.find((p) => p.id === you.id);
         document.getElementById('score-line').textContent = me
             ? `هذه الجولة: ${me.round_words} كلمات / ${me.round_score} نقطة — المجموع: ${me.total_score}`

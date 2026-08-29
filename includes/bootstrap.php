@@ -35,3 +35,4 @@ require HOROF_ROOT . '/includes/arabic.php';
 require HOROF_ROOT . '/includes/db.php';
 require HOROF_ROOT . '/includes/dictionary.php';
 require HOROF_ROOT . '/includes/game.php';
+seed_vocab_from_file();
