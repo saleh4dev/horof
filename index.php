@@ -18,11 +18,11 @@ require __DIR__ . '/includes/header.php';
     <div class="home-grid">
         <section class="panel">
             <h2>إنشاء غرفة</h2>
-            <p class="muted">أنت القائد. حدّد الجولات ثم شارك الرمز أو باركود الغرفة.</p>
+            <p class="muted">أنت القائد. سمّ الغرفة وحدّد الجولات ثم شارك الرمز أو الباركود.</p>
             <form id="create-form" class="stack">
                 <label>
-                    اسم القائد
-                    <input type="text" name="name" maxlength="24" required autocomplete="nickname" placeholder="مثال: أحمد">
+                    اسم الغرفة
+                    <input type="text" name="name" maxlength="40" required autocomplete="off" placeholder="مثال: مسابقة الجمعة">
                 </label>
                 <div class="row-2">
                     <label>

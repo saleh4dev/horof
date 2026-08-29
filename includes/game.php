@@ -52,11 +52,11 @@ function room_unlock(PDO $pdo, int $roomId): void
     $stmt->execute(['horof_room_' . $roomId]);
 }
 
-function create_room(PDO $pdo, string $hostName, int $rounds, int $seconds): array
+function create_room(PDO $pdo, string $roomName, int $rounds, int $seconds): array
 {
-    $hostName = clean_name($hostName);
-    if (ar_len($hostName) < 2) {
-        throw new RuntimeException('اكتب اسم القائد');
+    $roomName = clean_name($roomName, 40);
+    if (ar_len($roomName) < 2) {
+        throw new RuntimeException('اكتب اسم الغرفة');
     }
     $rounds = max(1, min(15, $rounds));
     $allowed = [30, 45, 60, 90];
@@ -73,7 +73,7 @@ function create_room(PDO $pdo, string $hostName, int $rounds, int $seconds): arr
                 'INSERT INTO rooms (code, host_token, host_name, total_rounds, round_seconds)
                  VALUES (?, ?, ?, ?, ?)'
             );
-            $ins->execute([$code, $token, $hostName, $rounds, $seconds]);
+            $ins->execute([$code, $token, $roomName, $rounds, $seconds]);
             $room = load_room_by_id($pdo, (int) $pdo->lastInsertId());
             if (!$room) {
                 throw new RuntimeException('تعذر إنشاء الغرفة');
@@ -342,6 +342,7 @@ function public_state(PDO $pdo, array $room, ?array $player = null, bool $isHost
         'display_url' => app_url('display.php?c=' . $code),
         'room' => [
             'code' => $code,
+            'name' => $room['host_name'],
             'host_name' => $room['host_name'],
             'status' => $room['status'],
             'round' => $round,

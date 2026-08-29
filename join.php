@@ -13,7 +13,7 @@ require __DIR__ . '/includes/header.php';
 <main class="shell narrow">
     <header class="brand">
         <p class="brand-kicker">الانضمام للمسابقة</p>
-        <h1>حروف</h1>
+        <h1 id="join-room-name">حروف</h1>
         <p class="lead">رمز الغرفة: <strong id="shown-code"><?= h($code !== '' ? $code : '—') ?></strong></p>
     </header>
     <section class="panel">

@@ -17,6 +17,7 @@ function boardHtml(players, withRound, withWords) {
 
 function render(data) {
     const room = data.room;
+    document.getElementById('disp-name').textContent = room.name || room.host_name || 'حروف';
     document.getElementById('disp-code').textContent = room.code;
     document.getElementById('disp-round').textContent =
         room.status === 'lobby' ? `بانتظار المتسابقين · ${room.total_rounds} جولات` :

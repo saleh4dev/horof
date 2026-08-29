@@ -30,11 +30,12 @@ document.getElementById('copy-link').addEventListener('click', async () => {
 function render(data) {
     const room = data.room;
     lastShare = data.share_url;
+    document.getElementById('room-name').textContent = room.name || room.host_name || 'غرفة القائد';
     document.getElementById('room-code').textContent = room.code;
     document.getElementById('share-url').textContent = data.share_url;
     document.getElementById('display-link').href = data.display_url;
     document.getElementById('whatsapp-link').href =
-        'https://wa.me/?text=' + encodeURIComponent('انضم لمسابقة حروف: ' + data.share_url);
+        'https://wa.me/?text=' + encodeURIComponent('انضم لمسابقة ' + (room.name || 'حروف') + ': ' + data.share_url);
     const qr = document.getElementById('qr-image');
     if (qr.dataset.url !== data.share_url) {
         qr.dataset.url = data.share_url;

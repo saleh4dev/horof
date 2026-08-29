@@ -13,7 +13,7 @@ require __DIR__ . '/includes/header.php';
 <main class="host-layout">
     <header class="host-top">
         <div>
-            <p class="brand-kicker">غرفة القائد</p>
+            <p class="brand-kicker" id="room-name">غرفة القائد</p>
             <h1 id="room-code"><?= h($code !== '' ? $code : '------') ?></h1>
         </div>
         <div class="host-actions">

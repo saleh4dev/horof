@@ -1,4 +1,14 @@
 bindJoin();
+showRoomName();
+
+async function showRoomName() {
+    const title = document.getElementById('join-room-name');
+    if (!title || !Horof.code()) return;
+    const data = await Horof.state();
+    if (data.ok && (data.room.name || data.room.host_name)) {
+        title.textContent = data.room.name || data.room.host_name;
+    }
+}
 
 function bindJoin() {
     const form = document.getElementById('join-form');

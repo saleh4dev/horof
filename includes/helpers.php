@@ -69,11 +69,11 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function clean_name(string $name): string
+function clean_name(string $name, int $max = 24): string
 {
     $name = trim(preg_replace('/\s+/u', ' ', $name) ?? '');
     $name = preg_replace('/[^\p{L}\p{N} _.\-]/u', '', $name) ?? '';
-    return mb_substr($name, 0, 24);
+    return mb_substr($name, 0, $max);
 }
 
 function now_utc(): string

@@ -12,7 +12,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 <main class="display-layout">
     <header class="display-top">
-        <div class="display-brand">حروف</div>
+        <div class="display-brand" id="disp-name">حروف</div>
         <div class="display-meta">
             <span id="disp-round"></span>
             <span class="disp-timer" id="disp-timer"></span>
