@@ -1,0 +1,8 @@
+---
+description: Always use a light color theme in this app
+alwaysApply: true
+---
+
+# Light theme
+
+Use a light palette on every screen: pale background, dark text, white or cream panels. Do not introduce dark mode or near-black page backgrounds.
