@@ -85,9 +85,14 @@ function ensure_schema(PDO $pdo): void
 
 function ensure_column(PDO $pdo, string $table, string $column, string $definition): void
 {
-    $stmt = $pdo->prepare('SHOW COLUMNS FROM `' . str_replace('`', '', $table) . '` LIKE ?');
-    $stmt->execute([$column]);
-    if (!$stmt->fetch()) {
-        $pdo->exec('ALTER TABLE `' . str_replace('`', '', $table) . '` ADD `' . str_replace('`', '', $column) . '` ' . $definition);
+    $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table) ?? '';
+    $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column) ?? '';
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+    );
+    $stmt->execute([$table, $column]);
+    if ((int) $stmt->fetchColumn() === 0) {
+        $pdo->exec("ALTER TABLE `{$table}` ADD `{$column}` {$definition}");
     }
 }
