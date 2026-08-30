@@ -80,6 +80,9 @@ function ensure_schema(PDO $pdo): void
     }
     ensure_column($pdo, 'rooms', 'set_id', 'INT UNSIGNED NULL');
     ensure_column($pdo, 'rooms', 'used_sets', 'VARCHAR(255) NULL');
+    ensure_varchar_length($pdo, 'rooms', 'letters', 255, 'NULL');
+    ensure_varchar_length($pdo, 'round_sets', 'letters', 255, 'NOT NULL');
+    ensure_varchar_length($pdo, 'letter_pools', 'letters', 255, 'NOT NULL');
     $ready = true;
 }
 
@@ -94,5 +97,23 @@ function ensure_column(PDO $pdo, string $table, string $column, string $definiti
     $stmt->execute([$table, $column]);
     if ((int) $stmt->fetchColumn() === 0) {
         $pdo->exec("ALTER TABLE `{$table}` ADD `{$column}` {$definition}");
+    }
+}
+
+function ensure_varchar_length(PDO $pdo, string $table, string $column, int $length, string $nullSql): void
+{
+    $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table) ?? '';
+    $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column) ?? '';
+    $stmt = $pdo->prepare(
+        'SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+    );
+    $stmt->execute([$table, $column]);
+    $current = $stmt->fetchColumn();
+    if ($current === false) {
+        return;
+    }
+    if ((int) $current > 0 && (int) $current < $length) {
+        $pdo->exec("ALTER TABLE `{$table}` MODIFY `{$column}` VARCHAR({$length}) {$nullSql}");
     }
 }

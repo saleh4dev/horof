@@ -60,8 +60,10 @@ require HOROF_ROOT . '/includes/header.php';
             <input type="hidden" name="action" value="create_set">
             <div class="row-2">
                 <label>اسم المجموعة<input name="name" maxlength="40" placeholder="مثال: جولة الكتب"></label>
-                <label>الحروف<input name="letters" required maxlength="24" placeholder="ك ت ب ا ر م ن ل"></label>
             </div>
+            <label>الحروف
+                <textarea name="letters" required rows="3" placeholder="اكتب أي عدد من الحروف، مع فراغات أو بدونها"></textarea>
+            </label>
             <button class="btn btn-primary" type="submit">إنشاء ثم إضافة الكلمات</button>
         </form>
     </section>

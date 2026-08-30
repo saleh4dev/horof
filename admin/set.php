@@ -92,7 +92,9 @@ require HOROF_ROOT . '/includes/header.php';
             <input type="hidden" name="action" value="update_set">
             <div class="row-2">
                 <label>اسم المجموعة<input name="name" maxlength="40" value="<?= h($set['name']) ?>"></label>
-                <label>الحروف<input name="letters" required maxlength="24" value="<?= h($set['letters']) ?>"></label>
+                <label>الحروف
+                    <textarea name="letters" required rows="3"><?= h($set['letters']) ?></textarea>
+                </label>
             </div>
             <button class="btn" type="submit">حفظ الحروف</button>
         </form>

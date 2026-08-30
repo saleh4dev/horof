@@ -49,8 +49,8 @@ function create_round_set(string $name, string $letters): array
     if ($name === '') {
         $name = 'مجموعة';
     }
-    if (!ar_is_arabic_word($norm) || $len < 4 || $len > 12) {
-        return ['ok' => false, 'error' => 'أدخل من 4 إلى 12 حرفاً عربياً'];
+    if (!ar_is_arabic_word($norm) || $len < 1) {
+        return ['ok' => false, 'error' => 'أدخل حروفاً عربية'];
     }
     $ins = db()->prepare('INSERT INTO round_sets (name, letters) VALUES (?, ?)');
     $ins->execute([$name, $norm]);
@@ -65,8 +65,8 @@ function update_round_set(int $id, string $name, string $letters): array
     if ($name === '') {
         $name = 'مجموعة';
     }
-    if (!ar_is_arabic_word($norm) || $len < 4 || $len > 12) {
-        return ['ok' => false, 'error' => 'أدخل من 4 إلى 12 حرفاً عربياً'];
+    if (!ar_is_arabic_word($norm) || $len < 1) {
+        return ['ok' => false, 'error' => 'أدخل حروفاً عربية'];
     }
     $stmt = db()->prepare('UPDATE round_sets SET name = ?, letters = ? WHERE id = ?');
     $stmt->execute([$name, $norm, $id]);

@@ -22,7 +22,7 @@ require __DIR__ . '/includes/header.php';
     <section class="letters big" id="letters"></section>
 
     <form id="word-form" class="word-form" hidden>
-        <input type="text" id="word-input" maxlength="16" autocomplete="off" enterkeyhint="send" placeholder="كوّن كلمة من الحروف">
+        <input type="text" id="word-input" maxlength="64" autocomplete="off" enterkeyhint="send" placeholder="كوّن كلمة من الحروف">
         <button type="submit" class="btn btn-primary">إرسال</button>
     </form>
     <p class="form-msg" id="play-msg" hidden></p>
