@@ -13,13 +13,17 @@
         return map;
     }
 
-    function fits(word) {
+    function extras(word) {
         const bag = counts(letters);
+        const need = {};
         for (const ch of Array.from(word.replace(/\s+/g, ''))) {
-            if (!bag[ch]) return false;
-            bag[ch] -= 1;
+            if (bag[ch]) {
+                bag[ch] -= 1;
+            } else {
+                need[ch] = (need[ch] || 0) + 1;
+            }
         }
-        return true;
+        return need;
     }
 
     input.addEventListener('input', () => {
@@ -28,9 +32,17 @@
             hint.hidden = true;
             return;
         }
-        const ok = fits(word);
+        const need = extras(word);
+        const missing = Object.keys(need);
+        const ok = missing.length === 0;
         hint.hidden = false;
-        hint.textContent = ok ? 'تُستخرج من هذه الحروف' : 'لا يمكن تكوينها من الحروف المعروضة';
         hint.classList.toggle('ok', ok);
+        if (ok) {
+            hint.textContent = 'تُستخرج من هذه الحروف';
+            return;
+        }
+        hint.textContent = 'تنقص هذه الحروف: ' + missing.map((ch) => (
+            need[ch] > 1 ? ch + ' × ' + need[ch] : ch
+        )).join('، ');
     });
 })();

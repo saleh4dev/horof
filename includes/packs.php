@@ -90,7 +90,11 @@ function add_set_word(int $setId, string $raw, string $letters): array
         return ['ok' => false, 'error' => 'استخدم حروفاً عربية فقط'];
     }
     if (!ar_uses_letters($norm, ar_normalize($letters))) {
-        return ['ok' => false, 'error' => 'هذه الكلمة لا تُستخرج من حروف المجموعة'];
+        $need = ar_needed_extras($norm, ar_normalize($letters));
+        $msg = $need !== []
+            ? ar_shortage_message($need)
+            : 'هذه الكلمة لا تُستخرج من حروف المجموعة';
+        return ['ok' => false, 'error' => $msg];
     }
     try {
         $ins = db()->prepare(

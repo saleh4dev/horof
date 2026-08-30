@@ -122,7 +122,7 @@ require HOROF_ROOT . '/includes/header.php';
 
         <section class="panel">
             <h2>الكلمات المعتمدة (<?= count($words) ?>)</h2>
-            <p class="muted">هذه فقط ما يُقبل من اللاعبين عندما تظهر هذه الحروف.</p>
+            <p class="muted">أدخل كلمات تُكوَّن من الحروف أعلاه بعدد مرات ظهور كل حرف. حرف التاء المربوطة (ة) يبقى ة ولا يُحوَّل إلى ه.</p>
             <ul class="word-chips">
                 <?php foreach ($words as $row): ?>
                     <li>

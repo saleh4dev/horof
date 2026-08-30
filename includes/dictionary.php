@@ -198,7 +198,11 @@ function validate_submission(string $raw, string $letters, int $setId = 0): arra
         return ['ok' => false, 'error' => 'استخدم حروفاً عربية فقط'];
     }
     if (!ar_uses_letters($norm, ar_normalize($letters))) {
-        return ['ok' => false, 'error' => 'الحروف المستخدمة غير موجودة في المجموعة'];
+        $need = ar_needed_extras($norm, ar_normalize($letters));
+        $msg = $need !== []
+            ? ar_shortage_message($need)
+            : 'الحروف المستخدمة غير موجودة في المجموعة';
+        return ['ok' => false, 'error' => $msg];
     }
     if ($setId < 1 || !is_set_word($setId, $norm)) {
         return ['ok' => false, 'error' => 'هذه الكلمة غير موجودة ضمن كلمات هذه الحروف'];
