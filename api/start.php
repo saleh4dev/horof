@@ -21,6 +21,9 @@ try {
     if ((int) $count->fetchColumn() < 1) {
         throw new RuntimeException('انتظر انضمام متسابق واحد على الأقل');
     }
+    if (prepared_set_count() < 1) {
+        throw new RuntimeException('لا توجد جولات جاهزة. أضف حروفاً وكلماتها من لوحة التحكم أولاً.');
+    }
     room_lock($pdo, (int) $room['id']);
     try {
         $room = start_round($pdo, $room);

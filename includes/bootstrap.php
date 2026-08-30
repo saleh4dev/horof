@@ -34,4 +34,5 @@ require HOROF_ROOT . '/includes/helpers.php';
 require HOROF_ROOT . '/includes/arabic.php';
 require HOROF_ROOT . '/includes/db.php';
 require HOROF_ROOT . '/includes/dictionary.php';
+require HOROF_ROOT . '/includes/packs.php';
 require HOROF_ROOT . '/includes/game.php';

@@ -126,14 +126,23 @@ function require_host(PDO $pdo, array $room, string $token): void
 
 function start_round(PDO $pdo, array $room): array
 {
+    $pick = pick_round_set($room);
     $next = (int) $room['current_round'] + 1;
-    $letters = generate_letters();
     $stmt = $pdo->prepare(
         'UPDATE rooms
-         SET status = ?, current_round = ?, letters = ?, round_started_at = ?, results_until = NULL
+         SET status = ?, current_round = ?, letters = ?, set_id = ?, used_sets = ?,
+             round_started_at = ?, results_until = NULL
          WHERE id = ?'
     );
-    $stmt->execute(['playing', $next, $letters, now_utc(), (int) $room['id']]);
+    $stmt->execute([
+        'playing',
+        $next,
+        $pick['letters'],
+        (int) $pick['id'],
+        $pick['_used_sets'],
+        now_utc(),
+        (int) $room['id'],
+    ]);
     $updated = load_room_by_id($pdo, (int) $room['id']);
     return $updated ?: $room;
 }
@@ -207,7 +216,7 @@ function submit_word(PDO $pdo, array $player, array $room, string $raw): array
     if ($room['status'] !== 'playing') {
         throw new RuntimeException('لا توجد جولة جارية');
     }
-    $check = validate_submission($raw, (string) $room['letters']);
+    $check = validate_submission($raw, (string) $room['letters'], (int) ($room['set_id'] ?? 0));
     if (!$check['ok']) {
         return $check;
     }
@@ -351,6 +360,7 @@ function public_state(PDO $pdo, array $room, ?array $player = null, bool $isHost
             'letters' => $letters,
             'seconds_left' => $secondsLeft,
             'results_left' => $resultsLeft,
+            'prepared_rounds' => prepared_set_count(),
         ],
         'players' => $list,
         'you' => $you,

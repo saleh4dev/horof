@@ -187,7 +187,7 @@ function word_points(string $word, int $elapsedMs, int $roundSeconds): int
     return $base + $lengthBonus + $speed;
 }
 
-function validate_submission(string $raw, string $letters): array
+function validate_submission(string $raw, string $letters, int $setId = 0): array
 {
     $display = trim($raw);
     $norm = ar_normalize($display);
@@ -200,8 +200,8 @@ function validate_submission(string $raw, string $letters): array
     if (!ar_uses_letters($norm, ar_normalize($letters))) {
         return ['ok' => false, 'error' => 'الحروف المستخدمة غير موجودة في المجموعة'];
     }
-    if (!is_dictionary_word($norm)) {
-        return ['ok' => false, 'error' => 'هذه الكلمة غير معتمدة في قاموس المسابقة'];
+    if ($setId < 1 || !is_set_word($setId, $norm)) {
+        return ['ok' => false, 'error' => 'هذه الكلمة غير موجودة ضمن كلمات هذه الحروف'];
     }
     return ['ok' => true, 'word' => $display, 'norm' => $norm];
 }

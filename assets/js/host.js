@@ -48,10 +48,18 @@ function render(data) {
         room.status === 'playing' ? `${room.seconds_left} ث` :
         room.status === 'results' ? `الجولة التالية خلال ${room.results_left} ث` : '';
     Horof.renderLetters(document.getElementById('letters'), room.letters);
-    document.getElementById('btn-start').hidden = room.status !== 'lobby';
+    const startBtn = document.getElementById('btn-start');
+    startBtn.hidden = room.status !== 'lobby';
+    startBtn.disabled = room.status === 'lobby' && !(room.prepared_rounds > 0);
     document.getElementById('btn-end-round').hidden = room.status !== 'playing';
     document.getElementById('btn-end-game').hidden = room.status === 'finished';
-    document.getElementById('lobby-hint').hidden = room.status !== 'lobby';
+    const hint = document.getElementById('lobby-hint');
+    hint.hidden = room.status !== 'lobby';
+    if (room.status === 'lobby') {
+        hint.textContent = room.prepared_rounds > 0
+            ? `الجولات تُختار من ${room.prepared_rounds} مجموعة أعدّها المدير.`
+            : 'لا يمكن البدء حتى يضيف المدير حروفاً وكلمات مستخرجة منها في لوحة التحكم.';
+    }
 
     const active = data.players.filter((p) => !p.kicked);
     document.getElementById('player-count').textContent = active.length;

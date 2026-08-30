@@ -6,7 +6,6 @@ require dirname(__DIR__) . '/includes/bootstrap.php';
 require HOROF_ROOT . '/includes/admin.php';
 
 admin_require();
-seed_vocab_from_file();
 
 $flash = '';
 $flashOk = false;
@@ -17,53 +16,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flash = 'انتهت صلاحية الجلسة. أعد المحاولة.';
     } else {
         $action = (string) ($_POST['action'] ?? '');
-        if ($action === 'add_word') {
-            $result = add_vocab_word((string) ($_POST['word'] ?? ''));
-            $flash = $result['ok'] ? 'تمت إضافة الكلمة.' : $result['error'];
-            $flashOk = $result['ok'];
-        } elseif ($action === 'add_words') {
-            $lines = preg_split('/\R/u', (string) ($_POST['words'] ?? '')) ?: [];
-            $added = 0;
-            foreach ($lines as $line) {
-                $result = add_vocab_word($line);
-                if ($result['ok']) {
-                    $added++;
-                }
+        if ($action === 'create_set') {
+            $result = create_round_set((string) ($_POST['name'] ?? ''), (string) ($_POST['letters'] ?? ''));
+            if ($result['ok']) {
+                header('Location: set.php?id=' . (int) $result['id']);
+                exit;
             }
-            $flash = $added > 0 ? "تمت إضافة {$added} كلمة." : 'لم تُضف كلمات جديدة.';
-            $flashOk = $added > 0;
-        } elseif ($action === 'delete_word') {
-            delete_vocab_word((int) ($_POST['id'] ?? 0));
-            $flash = 'حُذفت الكلمة.';
-            $flashOk = true;
-        } elseif ($action === 'add_letters') {
-            $result = add_letter_pool((string) ($_POST['letters'] ?? ''), (string) ($_POST['letter_name'] ?? ''));
-            $flash = $result['ok'] ? 'أُضيفت مجموعة الحروف.' : $result['error'];
-            $flashOk = $result['ok'];
-        } elseif ($action === 'delete_letters') {
-            delete_letter_pool((int) ($_POST['id'] ?? 0));
-            $flash = 'حُذفت مجموعة الحروف.';
+            $flash = $result['error'];
+        } elseif ($action === 'delete_set') {
+            delete_round_set((int) ($_POST['id'] ?? 0));
+            $flash = 'حُذفت المجموعة.';
             $flashOk = true;
         }
     }
 }
 
-$search = trim((string) ($_GET['q'] ?? ''));
-$words = search_vocab_words($search);
-$totalWords = vocab_count();
-$pools = letter_pools();
+$sets = prepared_sets();
+$ready = prepared_set_count();
 
 $title = 'لوحة التحكم — حروف';
 $bodyClass = 'page-admin';
-$assetPrefix = '../';
 require HOROF_ROOT . '/includes/header.php';
 ?>
 <main class="admin-layout">
     <header class="host-top">
         <div>
             <p class="brand-kicker">لوحة التحكم</p>
-            <h1>الكلمات والحروف</h1>
-            <p class="muted">الكلمات المقبولة من اللاعبين تُحفظ هنا في قاعدة البيانات. إن أضفت مجموعات حروف، تُستخدم في الجولات بدل التوليد العشوائي.</p>
+            <h1>جولات المسابقة</h1>
+            <p class="muted">أضف مجموعة حروف، ثم أدخل الكلمات التي يمكن استخراجها منها. كل مجموعة جاهزة تُستخدم كجولة.</p>
         </div>
         <a class="btn" href="logout.php">خروج</a>
     </header>
@@ -71,87 +51,45 @@ require HOROF_ROOT . '/includes/header.php';
         <p class="form-msg <?= $flashOk ? 'ok' : '' ?>"><?= h($flash) ?></p>
     <?php endif; ?>
 
-    <div class="host-grid">
-        <section class="panel">
-            <h2>مجموعات الحروف</h2>
-            <p class="muted">كل مجموعة تظهر كجولة. من 6 إلى 12 حرفاً، بدون فراغات أو معها.</p>
-            <form method="post" class="stack">
-                <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
-                <input type="hidden" name="action" value="add_letters">
-                <label>اسم المجموعة (اختياري)<input name="letter_name" maxlength="40" placeholder="مثال: مجموعة الكتب"></label>
-                <label>الحروف<input name="letters" required maxlength="24" placeholder="كتب ارمنل"></label>
-                <button class="btn btn-primary" type="submit">إضافة الحروف</button>
-            </form>
-            <ul class="player-list">
-                <?php foreach ($pools as $pool): ?>
-                    <li>
-                        <span>
-                            <strong><?= h($pool['name'] !== '' ? $pool['name'] : 'مجموعة') ?></strong>
-                            <span class="muted"><?= h(implode(' ', ar_chars($pool['letters']))) ?></span>
-                        </span>
-                        <form method="post">
-                            <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
-                            <input type="hidden" name="action" value="delete_letters">
-                            <input type="hidden" name="id" value="<?= (int) $pool['id'] ?>">
-                            <button class="kick" type="submit">حذف</button>
-                        </form>
-                    </li>
-                <?php endforeach; ?>
-                <?php if ($pools === []): ?>
-                    <li class="muted">لا توجد مجموعات بعد. الجولات ستُولَّد تلقائياً من الكلمات.</li>
-                <?php endif; ?>
-            </ul>
-        </section>
+    <p class="status-line">المجموعات الجاهزة للعب: <strong><?= (int) $ready ?></strong></p>
 
-        <section class="panel">
-            <h2>إضافة كلمات</h2>
-            <p class="muted">هذه هي الكلمات التي يُقبل إرسالها أثناء المسابقة. حالياً <?= (int) $totalWords ?> كلمة.</p>
-            <form method="post" class="stack">
-                <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
-                <input type="hidden" name="action" value="add_word">
-                <label>كلمة واحدة<input name="word" maxlength="32" placeholder="مثال: كتاب"></label>
-                <button class="btn btn-primary" type="submit">إضافة</button>
-            </form>
-            <form method="post" class="stack" style="margin-top:1rem">
-                <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
-                <input type="hidden" name="action" value="add_words">
-                <label>عدة كلمات (سطر لكل كلمة)
-                    <textarea name="words" placeholder="كتاب&#10;كتب&#10;مكتب"></textarea>
-                </label>
-                <button class="btn" type="submit">إضافة القائمة</button>
-            </form>
-        </section>
-    </div>
-
-    <section class="panel" style="margin-top:1rem">
-        <h2>الكلمات المحفوظة</h2>
-        <form method="get" class="word-form">
-            <input type="search" name="q" value="<?= h($search) ?>" placeholder="بحث في الكلمات">
-            <button class="btn" type="submit">بحث</button>
+    <section class="panel">
+        <h2>مجموعة حروف جديدة</h2>
+        <form method="post" class="stack">
+            <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+            <input type="hidden" name="action" value="create_set">
+            <div class="row-2">
+                <label>اسم المجموعة<input name="name" maxlength="40" placeholder="مثال: جولة الكتب"></label>
+                <label>الحروف<input name="letters" required maxlength="24" placeholder="ك ت ب ا ر م ن ل"></label>
+            </div>
+            <button class="btn btn-primary" type="submit">إنشاء ثم إضافة الكلمات</button>
         </form>
-        <table class="admin-table">
-            <thead>
-                <tr><th>الكلمة</th><th></th></tr>
-            </thead>
-            <tbody>
-            <?php foreach ($words as $row): ?>
-                <tr>
-                    <td><?= h($row['word']) ?></td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
-                            <input type="hidden" name="action" value="delete_word">
-                            <input type="hidden" name="id" value="<?= (int) $row['id'] ?>">
-                            <button class="kick" type="submit">حذف</button>
-                        </form>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php if ($words === []): ?>
-            <p class="muted">لا توجد كلمات مطابقة.</p>
-        <?php endif; ?>
     </section>
+
+    <div class="pack-grid">
+        <?php foreach ($sets as $set): ?>
+            <article class="panel pack-card">
+                <h2><?= h($set['name'] !== '' ? $set['name'] : 'مجموعة') ?></h2>
+                <div class="letters"><?php foreach (ar_chars($set['letters']) as $ch): ?>
+                    <span class="tile"><?= h($ch) ?></span>
+                <?php endforeach; ?></div>
+                <p class="muted"><?= (int) $set['word_count'] ?> كلمة معتمدة
+                    <?php if ((int) $set['word_count'] < 1): ?> — أضف كلمات حتى تُستخدم في الجولات<?php endif; ?>
+                </p>
+                <div class="controls">
+                    <a class="btn btn-primary" href="set.php?id=<?= (int) $set['id'] ?>">إدارة الكلمات</a>
+                    <form method="post">
+                        <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
+                        <input type="hidden" name="action" value="delete_set">
+                        <input type="hidden" name="id" value="<?= (int) $set['id'] ?>">
+                        <button class="btn btn-danger" type="submit" onclick="return confirm('حذف هذه المجموعة وكلماتها؟')">حذف</button>
+                    </form>
+                </div>
+            </article>
+        <?php endforeach; ?>
+    </div>
+    <?php if ($sets === []): ?>
+        <p class="muted">لا توجد مجموعات بعد. أنشئ مجموعة حروف ثم أضف الكلمات المستخرجة منها.</p>
+    <?php endif; ?>
 </main>
 <?php require HOROF_ROOT . '/includes/footer.php'; ?>

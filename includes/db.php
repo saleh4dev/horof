@@ -58,26 +58,36 @@ function ensure_schema(PDO $pdo): void
     }
     $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
     $tables = array_map('strval', $tables);
-    $needed = ['rooms', 'players', 'submissions', 'vocab_words', 'letter_pools'];
+    $needed = ['rooms', 'players', 'submissions', 'vocab_words', 'letter_pools', 'round_sets', 'round_set_words'];
+    $have = array_map('strtolower', $tables);
     $missing = false;
     foreach ($needed as $table) {
-        if (!in_array($table, $tables, true) && !in_array(strtolower($table), array_map('strtolower', $tables), true)) {
+        if (!in_array(strtolower($table), $have, true)) {
             $missing = true;
             break;
         }
     }
-    if (!$missing) {
-        $ready = true;
-        return;
-    }
-    $sql = file_get_contents(HOROF_ROOT . '/sql/schema.sql');
-    if ($sql === false) {
-        throw new RuntimeException('ملف القاعدة sql/schema.sql غير موجود');
-    }
-    foreach (array_filter(array_map('trim', explode(';', $sql))) as $statement) {
-        if ($statement !== '') {
-            $pdo->exec($statement);
+    if ($missing) {
+        $sql = file_get_contents(HOROF_ROOT . '/sql/schema.sql');
+        if ($sql === false) {
+            throw new RuntimeException('ملف القاعدة sql/schema.sql غير موجود');
+        }
+        foreach (array_filter(array_map('trim', explode(';', $sql))) as $statement) {
+            if ($statement !== '') {
+                $pdo->exec($statement);
+            }
         }
     }
+    ensure_column($pdo, 'rooms', 'set_id', 'INT UNSIGNED NULL');
+    ensure_column($pdo, 'rooms', 'used_sets', 'VARCHAR(255) NULL');
     $ready = true;
+}
+
+function ensure_column(PDO $pdo, string $table, string $column, string $definition): void
+{
+    $stmt = $pdo->prepare('SHOW COLUMNS FROM `' . str_replace('`', '', $table) . '` LIKE ?');
+    $stmt->execute([$column]);
+    if (!$stmt->fetch()) {
+        $pdo->exec('ALTER TABLE `' . str_replace('`', '', $table) . '` ADD `' . str_replace('`', '', $column) . '` ' . $definition);
+    }
 }

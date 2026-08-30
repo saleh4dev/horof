@@ -217,6 +217,15 @@ input:focus, select:focus { outline: 2px solid var(--brass); border-color: var(-
 .admin-table { width: 100%; border-collapse: collapse; }
 .admin-table th, .admin-table td { text-align: right; padding: .5rem 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .admin-table td:last-child { width: 4rem; }
+.pack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.pack-card .controls { margin-top: .8rem; }
+.inline-del { display: inline; margin-inline-start: .35rem; }
+.word-chips li { display: inline-flex; align-items: center; gap: .25rem; }
 
 @media (max-width: 800px) {
     .home-grid, .host-grid, .row-2 { grid-template-columns: 1fr; }
