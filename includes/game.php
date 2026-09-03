@@ -343,6 +343,12 @@ function public_state(PDO $pdo, array $room, ?array $player = null, bool $isHost
         ];
     }
     $code = $room['code'];
+    $section = '';
+    $setId = (int) ($room['set_id'] ?? 0);
+    if ($setId > 0) {
+        $set = load_round_set($setId);
+        $section = trim((string) ($set['name'] ?? ''));
+    }
     return [
         'ok' => true,
         'server_time' => time(),
@@ -353,6 +359,7 @@ function public_state(PDO $pdo, array $room, ?array $player = null, bool $isHost
             'code' => $code,
             'name' => $room['host_name'],
             'host_name' => $room['host_name'],
+            'section' => $section,
             'status' => $room['status'],
             'round' => $round,
             'total_rounds' => (int) $room['total_rounds'],

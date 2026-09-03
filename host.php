@@ -45,6 +45,7 @@ require __DIR__ . '/includes/header.php';
             <span id="round-label"></span>
             <span id="timer-label"></span>
         </div>
+        <p class="section-tag" id="host-section" hidden></p>
         <div class="letters" id="letters"></div>
         <div class="controls">
             <button type="button" id="btn-start" class="btn btn-primary">بدء المسابقة</button>

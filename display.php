@@ -19,6 +19,8 @@ require __DIR__ . '/includes/header.php';
         </div>
     </header>
 
+    <p class="section-tag section-tag-display" id="disp-section" hidden></p>
+
     <section class="display-stage" id="stage">
         <div class="lobby-show" id="lobby-show">
             <p class="display-kicker">امسح الباركود للانضمام</p>

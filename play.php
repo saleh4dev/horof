@@ -19,6 +19,8 @@ require __DIR__ . '/includes/header.php';
         <div class="timer" id="timer">--</div>
     </header>
 
+    <p class="section-tag" id="round-section" hidden></p>
+
     <section class="letters big" id="letters"></section>
 
     <form id="word-form" class="word-form" hidden>

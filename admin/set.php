@@ -71,7 +71,7 @@ require HOROF_ROOT . '/includes/header.php';
 <main class="admin-layout">
     <header class="host-top">
         <div>
-            <p class="brand-kicker">مجموعة جاهزة للجولة</p>
+            <p class="brand-kicker">القسم الظاهر للمتسابقين</p>
             <h1><?= h($set['name'] !== '' ? $set['name'] : 'مجموعة') ?></h1>
         </div>
         <a class="btn" href="index.php">كل المجموعات</a>
@@ -91,12 +91,12 @@ require HOROF_ROOT . '/includes/header.php';
             <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
             <input type="hidden" name="action" value="update_set">
             <div class="row-2">
-                <label>اسم المجموعة<input name="name" maxlength="40" value="<?= h($set['name']) ?>"></label>
+                <label>القسم<input name="name" maxlength="40" required value="<?= h($set['name']) ?>" placeholder="مثال: فواكه أو دول"></label>
                 <label>الحروف
                     <textarea name="letters" required rows="3"><?= h($set['letters']) ?></textarea>
                 </label>
             </div>
-            <button class="btn" type="submit">حفظ الحروف</button>
+            <button class="btn" type="submit">حفظ القسم والحروف</button>
         </form>
     </section>
 

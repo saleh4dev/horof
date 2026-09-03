@@ -27,6 +27,12 @@ function render(data) {
         room.status === 'playing' ? room.seconds_left :
         room.status === 'results' ? `الانتقال خلال ${room.results_left}` : '';
 
+    const sectionEl = document.getElementById('disp-section');
+    const showSection = !!(room.section && (room.status === 'playing' || room.status === 'results'));
+    sectionEl.hidden = !showSection;
+    if (showSection) {
+        sectionEl.textContent = 'القسم: ' + room.section;
+    }
     lobby.hidden = room.status !== 'lobby';
     play.hidden = room.status !== 'playing';
     results.hidden = room.status !== 'results' && room.status !== 'finished';

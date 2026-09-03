@@ -48,6 +48,12 @@ function render(data) {
         room.status === 'playing' ? `${room.seconds_left} ث` :
         room.status === 'results' ? `الجولة التالية خلال ${room.results_left} ث` : '';
     Horof.renderLetters(document.getElementById('letters'), room.letters);
+    const sectionEl = document.getElementById('host-section');
+    const showSection = !!(room.section && (room.status === 'playing' || room.status === 'results'));
+    sectionEl.hidden = !showSection;
+    if (showSection) {
+        sectionEl.textContent = 'القسم: ' + room.section;
+    }
     const startBtn = document.getElementById('btn-start');
     startBtn.hidden = room.status !== 'lobby';
     startBtn.disabled = room.status === 'lobby' && !(room.prepared_rounds > 0);

@@ -47,7 +47,7 @@ function create_round_set(string $name, string $letters): array
     $norm = ar_normalize(trim($letters));
     $len = ar_len($norm);
     if ($name === '') {
-        $name = 'مجموعة';
+        return ['ok' => false, 'error' => 'اكتب اسم القسم مثل فواكه أو دول'];
     }
     if (!ar_is_arabic_word($norm) || $len < 1) {
         return ['ok' => false, 'error' => 'أدخل حروفاً عربية'];
@@ -63,7 +63,7 @@ function update_round_set(int $id, string $name, string $letters): array
     $norm = ar_normalize(trim($letters));
     $len = ar_len($norm);
     if ($name === '') {
-        $name = 'مجموعة';
+        return ['ok' => false, 'error' => 'اكتب اسم القسم مثل فواكه أو دول'];
     }
     if (!ar_is_arabic_word($norm) || $len < 1) {
         return ['ok' => false, 'error' => 'أدخل حروفاً عربية'];

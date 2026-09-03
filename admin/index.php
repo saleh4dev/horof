@@ -43,7 +43,7 @@ require HOROF_ROOT . '/includes/header.php';
         <div>
             <p class="brand-kicker">لوحة التحكم</p>
             <h1>جولات المسابقة</h1>
-            <p class="muted">أضف مجموعة حروف، ثم أدخل الكلمات التي يمكن استخراجها منها. كل مجموعة جاهزة تُستخدم كجولة.</p>
+            <p class="muted">أضف قسماً (فواكه، دول، …) ثم حروفه والكلمات المستخرجة منها. يظهر اسم القسم للمتسابقين في كل جولة.</p>
         </div>
         <a class="btn" href="logout.php">خروج</a>
     </header>
@@ -59,7 +59,7 @@ require HOROF_ROOT . '/includes/header.php';
             <input type="hidden" name="csrf" value="<?= h($csrf) ?>">
             <input type="hidden" name="action" value="create_set">
             <div class="row-2">
-                <label>اسم المجموعة<input name="name" maxlength="40" placeholder="مثال: جولة الكتب"></label>
+                <label>القسم<input name="name" maxlength="40" required placeholder="مثال: فواكه أو دول"></label>
             </div>
             <label>الحروف
                 <textarea name="letters" required rows="3" placeholder="اكتب أي عدد من الحروف، مع فراغات أو بدونها"></textarea>

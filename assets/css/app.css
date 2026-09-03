@@ -182,7 +182,7 @@ input:focus, select:focus { outline: 2px solid var(--brass); border-color: var(-
     min-height: 100dvh;
     padding: 1.2rem 1.6rem 1.5rem;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
 }
 .display-brand { font-family: var(--display); font-size: 1.4rem; color: var(--brass); }
 .display-meta { display: flex; gap: 1.2rem; font-size: 1.2rem; color: var(--mute); align-items: center; }
@@ -225,7 +225,26 @@ input:focus, select:focus { outline: 2px solid var(--brass); border-color: var(-
 }
 .pack-card .controls { margin-top: .8rem; }
 .inline-del { display: inline; margin-inline-start: .35rem; }
-.word-chips li { display: inline-flex; align-items: center; gap: .25rem; }
+.section-tag {
+    display: block;
+    text-align: center;
+    font-family: var(--display);
+    font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+    font-weight: 700;
+    color: var(--brass-2);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: .45rem 1.2rem;
+    margin: 0 auto 1rem;
+    width: fit-content;
+    max-width: 100%;
+}
+.section-tag[hidden] { display: none; }
+.section-tag-display {
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    margin-bottom: .6rem;
+}
 
 @media (max-width: 800px) {
     .home-grid, .host-grid, .row-2 { grid-template-columns: 1fr; }

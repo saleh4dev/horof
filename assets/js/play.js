@@ -45,6 +45,12 @@ function render(data) {
         room.status === 'results' ? room.results_left :
         room.status === 'lobby' ? '—' : '';
     Horof.renderLetters(document.getElementById('letters'), room.letters);
+    const sectionEl = document.getElementById('round-section');
+    const showSection = !!(room.section && (room.status === 'playing' || room.status === 'results'));
+    sectionEl.hidden = !showSection;
+    if (showSection) {
+        sectionEl.textContent = 'القسم: ' + room.section;
+    }
     form.hidden = room.status !== 'playing';
     if (you) {
         document.getElementById('my-words').innerHTML =
